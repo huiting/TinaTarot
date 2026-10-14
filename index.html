@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17121f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="東京自由行">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <title>塔羅抽卡</title>
+  <style>
+    :root { color-scheme: dark; --bg:#17121f; --panel:#211a2a; --gold:#d8b878; --muted:#b8acbd; --line:#504357; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:#f8f2e9; background:radial-gradient(ellipse at 50% -15%,#473452 0%,var(--bg) 58%); font-family:ui-serif,"Noto Serif TC","Songti TC",serif; }
+    main { width:min(1100px,calc(100% - 32px)); margin:0 auto; padding:48px 0 64px; }
+    header { text-align:center; margin-bottom:28px; }
+    .eyebrow { color:var(--gold); font:12px/1.5 system-ui,sans-serif; letter-spacing:.28em; }
+    h1 { margin:8px 0 6px; font-size:clamp(36px,7vw,58px); font-weight:500; letter-spacing:.16em; }
+    .subtitle { margin:0; color:var(--muted); font:14px/1.7 system-ui,sans-serif; }
+    .controls { display:flex; justify-content:center; gap:12px; margin:26px 0 16px; }
+    button { min-width:120px; padding:12px 24px; border:1px solid var(--gold); border-radius:999px; color:#211a2a; background:var(--gold); font:600 15px system-ui,sans-serif; letter-spacing:.08em; cursor:pointer; transition:transform .18s,background .18s,opacity .18s; }
+    button:hover:not(:disabled) { transform:translateY(-2px); background:#ecd39e; }
+    button:active:not(:disabled) { transform:translateY(0); }
+    button.secondary { color:#f8f2e9; background:transparent; border-color:var(--line); }
+    button.secondary:hover { background:#302638; }
+    button:disabled { opacity:.48; cursor:not-allowed; }
+    .status { min-height:24px; margin:0 0 28px; text-align:center; color:var(--muted); font:13px/1.6 system-ui,sans-serif; }
+    .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:22px 18px; align-items:start; }
+    .card { margin:0; padding:10px 10px 14px; overflow:hidden; text-align:center; border:1px solid #594965; border-radius:14px; background:linear-gradient(155deg,#2b2233,#1e1825); box-shadow:0 12px 32px #09070d66; animation:appear .35s ease both; }
+    .card img { display:block; width:100%; height:auto; border-radius:7px; background:#100d13; }
+    .card figcaption { padding:11px 2px 0; color:#f8f2e9; font-size:15px; line-height:1.5; }
+    .empty { grid-column:1/-1; padding:55px 18px; text-align:center; color:#a99caf; border:1px dashed var(--line); border-radius:16px; font:14px/1.8 system-ui,sans-serif; }
+    footer { margin-top:34px; text-align:center; color:#81758a; font:12px/1.7 system-ui,sans-serif; }
+    @keyframes appear { from { opacity:0; transform:translateY(10px) scale(.98); } to { opacity:1; transform:none; } }
+    @media (max-width:520px) { main { padding-top:34px; } .cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 12px; } .card { padding:7px 7px 11px; } button { min-width:108px; padding:11px 19px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">A MOMENT WITH THE CARDS</div>
+      <h1>塔羅抽卡</h1>
+      <p class="subtitle">靜下心來，看看今天的牌想告訴你什麼。</p>
+      <div class="controls">
+        <button id="drawButton" type="button">抽卡</button>
+        <button id="shuffleButton" class="secondary" type="button">洗牌</button>
+      </div>
+      <p id="status" class="status" aria-live="polite"></p>
+    </header>
+    <section id="cards" class="cards" aria-label="已抽出的塔羅牌">
+      <div class="empty">點擊「抽卡」，揭開第一張牌。</div>
+    </section>
+    <footer>共 78 張牌 · 每張牌只會抽出一次</footer>
+  </main>
+  <script>
+    "use strict";
+    const cardFiles = ["世界The World.jpg","倒吊者The Hanged Man.jpg","力量Strength.jpg","命運之輪Wheel Of Fortune.jpg","太陽The Sun.jpg","女皇The Empress.jpg","女祭司The High Priestess.jpg","審判Judgement.jpg","寶劍AAce Of Swords.jpg","寶劍七Seven Of Swords.jpg","寶劍三Three Of Swords.jpg","寶劍九Nine Of Swords.jpg","寶劍二Two Of Swords.jpg","寶劍五Five Of Swords.jpg","寶劍侍從Page Of Swords.jpg","寶劍八Eight Of Swords.jpg","寶劍六Six Of Swords.jpg","寶劍十Ten Of Swords.jpg","寶劍四Four Of Swords.jpg","寶劍國王King Of Swords.jpg","寶劍王后Queen Of Swords.jpg","寶劍騎士Knight Of Swords.jpg","惡魔The Devil.jpg","愚人The Fool.jpg","戀人The Lovers.jpg","戰車The Chariot.jpg","星星The Stars.jpg","月亮The Moon.jpg","權杖AAce Of Wands.jpg","權杖七Seven Of Wands.jpg","權杖三Three Of Wands.jpg","權杖九Nine Of Wands.jpg","權杖二Two Of Wands.jpg","權杖五Five Of Wands.jpg","權杖侍從Page Of Wands.jpg","權杖八Eight Of Wands.jpg","權杖六Six Of Wands.jpg","權杖十Ten Of Wands.jpg","權杖四Four Of Wands.jpg","權杖國王King Of Wands.jpg","權杖王后Queen Of Wands.jpg","權杖騎士Knight Of Wands.jpg","正義Justice.jpg","死神Death.jpg","皇帝The Emperor.jpg","節制Temperance.jpg","聖盃AAce Of Cups.jpg","聖盃七Seven Of Cups.jpg","聖盃三Three Of Cups.jpg","聖盃九Nine Of Cups.jpg","聖盃二Two Of Cups.jpg","聖盃五Five Of Cups.jpg","聖盃侍從Page Of Cups.jpg","聖盃八Eight Of Cups.jpg","聖盃六Six Of Cups.jpg","聖盃十Ten Of Cups.jpg","聖盃四Four Of Cups.jpg","聖盃國王King Of Cups.jpg","聖盃王后Queen Of Cups.jpg","聖盃騎士Knight Of Cups.jpg","聖職者The Hierophant.jpg","錢幣AAce Of Pentacles.jpg","錢幣七Seven Of Pentacles.jpg","錢幣三Three Of Pentacles.jpg","錢幣九Nine Of Pentacles.jpg","錢幣二Two Of Pentacles.jpg","錢幣五Five Of Pentacles.jpg","錢幣侍從Page Of Pentacles.jpg","錢幣八Eight Of Pentacles.jpg","錢幣六Six Of Pentacles.jpg","錢幣十Ten Of Pentacles.jpg","錢幣四Four Of Pentacles.jpg","錢幣國王King Of Pentacles.jpg","錢幣王后Queen Of Pentacles.jpg","錢幣騎士Knight Of Pentacles.jpg","隱士The Hermit.jpg","高塔The Tower.jpg","魔術師The Magician.jpg"];
+    const cardsEl = document.getElementById("cards");
+    const statusEl = document.getElementById("status");
+    const drawButton = document.getElementById("drawButton");
+    let deck = [];
+    let drawnCount = 0;
+
+    function imagePath(file) {
+      return "../Tarot78/" + encodeURIComponent(file).replaceAll("%2F", "/");
+    }
+    function resetDeck() {
+      deck = [...cardFiles];
+      drawnCount = 0;
+      cardsEl.replaceChildren();
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "點擊「抽卡」，揭開第一張牌。";
+      cardsEl.append(empty);
+      drawButton.disabled = false;
+      statusEl.textContent = "牌已洗好，準備開始。";
+    }
+    function drawCard() {
+      if (deck.length === 0) return;
+      if (drawnCount === 0) cardsEl.replaceChildren();
+      const index = Math.floor(Math.random() * deck.length);
+      const [file] = deck.splice(index, 1);
+      const name = file.replace(/\.jpg$/i, "");
+      const figure = document.createElement("figure");
+      figure.className = "card";
+      const img = document.createElement("img");
+      img.src = imagePath(file);
+      img.alt = name;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.onerror = () => { img.alt = name + "（圖片載入失敗）"; };
+      const caption = document.createElement("figcaption");
+      caption.textContent = name;
+      figure.append(img, caption);
+      cardsEl.prepend(figure);
+      drawnCount += 1;
+      statusEl.textContent = `已抽出 ${drawnCount} 張，牌堆還有 ${deck.length} 張。`;
+      if (deck.length === 0) {
+        drawButton.disabled = true;
+        statusEl.textContent = "78 張牌都已抽完；按「洗牌」重新開始。";
+      }
+    }
+    drawButton.addEventListener("click", drawCard);
+    document.getElementById("shuffleButton").addEventListener("click", resetDeck);
+    resetDeck();
+  </script>
+</body>
+</html>
