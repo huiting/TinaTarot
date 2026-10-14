@@ -106,6 +106,24 @@
     drawButton.addEventListener("click", drawCard);
     document.getElementById("shuffleButton").addEventListener("click", resetDeck);
     resetDeck();
+
+    if ("serviceWorker" in navigator) {
+      statusEl.textContent = navigator.onLine ? "正在準備離線牌圖…" : "正在載入已儲存的牌圖…";
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => navigator.serviceWorker.ready)
+        .then(() => {
+          if (drawnCount === 0) statusEl.textContent = "離線牌圖已備妥，可以離線抽卡。";
+        })
+        .catch(() => {
+          if (drawnCount === 0) statusEl.textContent = "離線準備失敗；請確認連線後重新載入。";
+        });
+      window.addEventListener("offline", () => {
+        statusEl.textContent = "目前離線，使用已儲存的牌圖。";
+      });
+      window.addEventListener("online", () => {
+        if (drawnCount === 0) statusEl.textContent = "已連線，正在確認離線牌圖…";
+      });
+    }
   </script>
 </body>
 </html>
