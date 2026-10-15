@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17121f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="東京自由行">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <title>抽卡記錄</title>
+  <style>
+    :root { color-scheme:dark; --bg:#17121f; --panel:#211a2a; --gold:#d8b878; --muted:#b8acbd; --line:#504357; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:#f8f2e9; background:radial-gradient(ellipse at 50% -15%,#473452 0%,var(--bg) 58%); font-family:ui-serif,"Noto Serif TC","Songti TC",serif; }
+    .app-shell { display:flex; min-height:100vh; }
+    .sidebar { width:236px; flex:0 0 236px; padding:30px 18px; border-right:1px solid #3b3043; background:#17121fe8; }
+    .brand { margin:0 10px 28px; color:var(--gold); font:600 13px/1.5 system-ui,sans-serif; letter-spacing:.12em; }
+    .sidebar nav { display:grid; gap:8px; }
+    .sidebar a { display:block; padding:12px 14px; border:1px solid transparent; border-radius:10px; color:var(--muted); text-decoration:none; font:14px/1.5 system-ui,sans-serif; }
+    .sidebar a:hover { color:#fff; background:#302638; }
+    .sidebar a[aria-current="page"] { color:#f8f2e9; background:#302638; border-color:#594965; }
+    main { width:min(1100px,calc(100% - 48px)); margin:0 auto; padding:48px 0 64px; }
+    header { margin:0 0 26px; }
+    .eyebrow { color:var(--gold); font:12px/1.5 system-ui,sans-serif; letter-spacing:.28em; text-align:center; }
+    h1 { margin:8px 0; font-size:clamp(34px,6vw,50px); font-weight:500; letter-spacing:.1em; text-align:center; }
+    .subtitle { margin:0; color:var(--muted); font:14px/1.7 system-ui,sans-serif; text-align:center; }
+    .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .table-wrap { overflow:hidden; border:1px solid #504357; border-radius:14px; background:#211a2abf; }
+    table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    thead { color:#d8cddd; background:#302638; font:13px/1.5 system-ui,sans-serif; }
+    th,td { padding:15px 16px; border-bottom:1px solid #3b3043; text-align:left; }
+    th:first-child,td:first-child { width:29%; }
+    th:nth-child(2),td:nth-child(2) { width:20%; }
+    th:last-child,td:last-child { width:92px; text-align:center; }
+    tbody tr { cursor:pointer; touch-action:pan-y; transition:background .16s; }
+    tbody tr:hover,tbody tr:focus { outline:none; background:#302638; }
+    tbody tr:focus-visible { box-shadow:inset 0 0 0 2px var(--gold); }
+    tbody tr:last-child td { border-bottom:0; }
+    .record-date { color:#d1c7d5; font:13px/1.5 system-ui,sans-serif; }
+    .record-summary { overflow:hidden; color:#f8f2e9; text-overflow:ellipsis; white-space:nowrap; }
+    .record-type { color:var(--gold); font:14px/1.5 system-ui,sans-serif; }
+    .delete-record { padding:8px 12px; border:1px solid #79555f; border-radius:8px; color:#f1c4c4; background:#442c38; font:13px system-ui,sans-serif; cursor:pointer; opacity:0; visibility:hidden; transition:opacity .16s; }
+    tbody tr:hover .delete-record,tbody tr:focus-within .delete-record,tbody tr.swiped .delete-record { opacity:1; visibility:visible; }
+    .delete-record:hover { background:#70404d; }
+    .empty { padding:50px 18px; text-align:center; color:var(--muted); font:14px/1.8 system-ui,sans-serif; }
+    .swipe-hint { margin:12px 4px 0; color:#92869a; font:12px/1.6 system-ui,sans-serif; text-align:right; }
+    dialog { width:min(680px,calc(100% - 28px)); max-height:min(82vh,780px); padding:0; overflow:hidden; border:1px solid #665574; border-radius:16px; color:#f8f2e9; background:#211a2a; box-shadow:0 24px 80px #09070dcc; }
+    dialog::backdrop { background:#09070dcc; backdrop-filter:blur(4px); }
+    .dialog-head { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; padding:20px 22px; border-bottom:1px solid #504357; }
+    .dialog-head h2 { margin:0; color:#f6e8c8; font-size:24px; font-weight:500; }
+    .dialog-head p { margin:5px 0 0; color:var(--muted); font:12px/1.5 system-ui,sans-serif; }
+    .close-dialog { width:38px; height:38px; flex:0 0 38px; border:1px solid #504357; border-radius:50%; color:#f8f2e9; background:transparent; font-size:22px; cursor:pointer; }
+    .detail-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; max-height:calc(82vh - 100px); padding:20px; overflow:auto; }
+    .detail-card { min-width:0; margin:0; padding:10px; border:1px solid #504357; border-radius:11px; background:#17121f; text-align:center; }
+    .detail-card img { display:block; width:100%; height:auto; border-radius:6px; }
+    .detail-rune { display:grid; min-height:125px; place-items:center; color:#f2d99f; font-family:"Noto Sans Runic","Segoe UI Historic","Noto Sans",serif; font-size:82px; }
+    .detail-rune.blank { width:68px; height:98px; min-height:0; margin:13px auto; border:1px solid #75617e; border-radius:42% 42% 38% 38%; background:radial-gradient(ellipse at 45% 35%,#473a50,#17121f 75%); }
+    .detail-card figcaption { padding-top:8px; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
+    @media (max-width:700px) {
+      .app-shell { display:block; }
+      .sidebar { width:100%; padding:14px 16px; border-right:0; border-bottom:1px solid #3b3043; }
+      .brand { margin:0 4px 10px; }
+      .sidebar nav { display:flex; gap:6px; }
+      .sidebar a { flex:1; padding:9px 5px; text-align:center; font-size:12px; }
+      main { width:calc(100% - 28px); padding:32px 0 50px; }
+      th,td { padding:12px 9px; }
+      th:first-child,td:first-child { width:35%; }
+      th:nth-child(2),td:nth-child(2) { width:22%; }
+      th:last-child,td:last-child { width:54px; }
+      .delete-record { width:34px; height:34px; padding:0; overflow:hidden; border-radius:8px; font-size:0; }
+      .delete-record::after { content:"×"; font-size:21px; }
+      .record-date { font-size:11px; }
+      .record-type { font-size:12px; }
+      .record-summary { font-size:13px; }
+      .swipe-hint { text-align:center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主選單">
+      <p class="brand">TINA · DIVINATION</p>
+      <nav>
+        <a href="./index.html">塔羅抽卡</a>
+        <a href="./runes.html">盧恩符文抽卡</a>
+        <a href="./history.html" aria-current="page">抽卡記錄</a>
+      </nav>
+    </aside>
+    <main>
+      <header>
+        <div class="eyebrow">YOUR LOCAL JOURNAL</div>
+        <h1>抽卡記錄</h1>
+        <p class="subtitle">記錄保存在這台裝置，可離線查看。點選一列查看完整牌面。</p>
+      </header>
+      <div class="table-wrap">
+        <table aria-label="抽卡記錄清單">
+          <thead><tr><th scope="col">日期</th><th scope="col">類型</th><th scope="col">結果</th><th scope="col"><span class="visually-hidden">操作</span></th></tr></thead>
+          <tbody id="recordRows"></tbody>
+        </table>
+        <div id="emptyState" class="empty" hidden>目前沒有抽卡記錄。完成一次抽卡後，記錄會自動出現在這裡。</div>
+      </div>
+      <p class="swipe-hint">手機可將記錄列向左滑動刪除；也可使用列尾的刪除按鈕。</p>
+    </main>
+  </div>
+  <dialog id="recordDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-head">
+      <div><h2 id="dialogTitle">抽卡結果</h2><p id="dialogDate"></p></div>
+      <button class="close-dialog" id="closeDialog" type="button" aria-label="關閉">×</button>
+    </div>
+    <div class="detail-cards" id="detailCards"></div>
+  </dialog>
+  <script>
+    "use strict";
+    const HISTORY_KEY = "tina-tarot-reading-history-v1";
+    const DELETED_KEY = "tina-tarot-deleted-reading-ids-v1";
+    const runeGlyphs = {
+      Fehu:"ᚠ", Uruz:"ᚢ", Thurisaz:"ᚦ", Ansuz:"ᚨ", Raidho:"ᚱ", Kenaz:"ᚲ", Gebo:"ᚷ", Wunjo:"ᚹ",
+      Hagalaz:"ᚺ", Nauthiz:"ᚾ", Isa:"ᛁ", Jera:"ᛃ", Eihwaz:"ᛇ", Perthro:"ᛈ", Algiz:"ᛉ", Sowilo:"ᛊ",
+      Tiwaz:"ᛏ", Berkano:"ᛒ", Ehwaz:"ᛖ", Mannaz:"ᛗ", Laguz:"ᛚ", Ingwaz:"ᛜ", Dagaz:"ᛞ", Othala:"ᛟ"
+    };
+    const recordRows = document.getElementById("recordRows");
+    const emptyState = document.getElementById("emptyState");
+    const dialog = document.getElementById("recordDialog");
+    const detailCards = document.getElementById("detailCards");
+    const dialogTitle = document.getElementById("dialogTitle");
+    const dialogDate = document.getElementById("dialogDate");
+    let records = [];
+    let gesture = null;
+    let ignoreRowClickUntil = 0;
+
+    function loadRecords() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+        records = Array.isArray(saved) ? saved.filter((record) => record && record.id && Array.isArray(record.cards)) : [];
+      } catch { records = []; }
+      renderRows();
+    }
+
+    function readableDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "日期不明" : new Intl.DateTimeFormat("zh-TW", { dateStyle:"medium", timeStyle:"short" }).format(date);
+    }
+
+    function recordSummary(record) {
+      const count = record.cards.length;
+      if (record.type === "runes") return `${count} 枚符文${record.includeBlank ? "（含空白）" : ""}`;
+      return `${count} 張牌`;
+    }
+
+    function renderRows() {
+      recordRows.replaceChildren();
+      const ordered = [...records].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      emptyState.hidden = ordered.length > 0;
+      for (const record of ordered) {
+        const row = document.createElement("tr");
+        row.className = "record-row";
+        row.tabIndex = 0;
+        row.dataset.recordId = record.id;
+        row.setAttribute("aria-label", `${readableDate(record.createdAt)}，${record.type === "runes" ? "盧恩符文" : "塔羅"}，${recordSummary(record)}；點選查看，向左滑動刪除`);
+
+        const dateCell = document.createElement("td");
+        dateCell.className = "record-date";
+        dateCell.textContent = readableDate(record.createdAt);
+        const typeCell = document.createElement("td");
+        typeCell.className = "record-type";
+        typeCell.textContent = record.type === "runes" ? "盧恩符文" : "塔羅";
+        const summaryCell = document.createElement("td");
+        summaryCell.className = "record-summary";
+        const preview = record.cards.slice(0, 2).map((card) => card.replace(/\.jpg$/i, ""));
+        summaryCell.textContent = preview.join("、") + (record.cards.length > 2 ? `…（${record.cards.length} 筆）` : "");
+        const actionCell = document.createElement("td");
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "delete-record";
+        deleteButton.textContent = "刪除";
+        deleteButton.setAttribute("aria-label", `刪除 ${readableDate(record.createdAt)} 的${record.type === "runes" ? "盧恩符文" : "塔羅"}記錄`);
+        deleteButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          deleteRecord(record.id);
+        });
+        actionCell.append(deleteButton);
+        row.append(dateCell, typeCell, summaryCell, actionCell);
+        row.addEventListener("click", () => {
+          if (Date.now() < ignoreRowClickUntil) return;
+          openRecord(record);
+        });
+        row.addEventListener("keydown", (event) => {
+          if (event.target === row && (event.key === "Enter" || event.key === " ")) {
+            event.preventDefault();
+            openRecord(record);
+          }
+        });
+        row.addEventListener("pointerdown", (event) => {
+          if (event.target.closest("button")) return;
+          gesture = { row, x:event.clientX, y:event.clientY };
+        });
+        row.addEventListener("pointerup", (event) => {
+          if (!gesture || gesture.row !== row) return;
+          const dx = event.clientX - gesture.x;
+          const dy = event.clientY - gesture.y;
+          if (Math.abs(dx) > 55 && Math.abs(dy) < 45) {
+            row.classList.toggle("swiped", dx < 0);
+            ignoreRowClickUntil = Date.now() + 400;
+          }
+          gesture = null;
+        });
+        row.addEventListener("pointercancel", () => { gesture = null; });
+        recordRows.append(row);
+      }
+    }
+
+    function openRecord(record) {
+      dialogTitle.textContent = record.type === "runes" ? "盧恩符文抽取結果" : "塔羅抽牌結果";
+      dialogDate.textContent = readableDate(record.createdAt);
+      detailCards.replaceChildren();
+      for (const value of record.cards) {
+        const figure = document.createElement("figure");
+        figure.className = "detail-card";
+        const caption = document.createElement("figcaption");
+        if (record.type === "runes") {
+          const rune = document.createElement("div");
+          rune.className = "detail-rune" + (value === "空白符文" ? " blank" : "");
+          rune.setAttribute("aria-hidden", "true");
+          rune.textContent = runeGlyphs[value] || "";
+          caption.textContent = value;
+          figure.append(rune, caption);
+        } else {
+          const image = document.createElement("img");
+          image.src = "./Tarot78/" + encodeURIComponent(value).replaceAll("%2F", "/");
+          image.alt = value.replace(/\.jpg$/i, "");
+          caption.textContent = image.alt;
+          figure.append(image, caption);
+        }
+        detailCards.append(figure);
+      }
+      dialog.showModal();
+    }
+
+    function deleteRecord(id) {
+      records = records.filter((record) => record.id !== id);
+      try {
+        const deleted = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+        const ids = Array.isArray(deleted) ? deleted : [];
+        if (!ids.includes(id)) ids.push(id);
+        localStorage.setItem(DELETED_KEY, JSON.stringify(ids));
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(records));
+      } catch { /* Keep the visible list updated even if browser storage is unavailable. */ }
+      renderRows();
+    }
+
+    document.getElementById("closeDialog").addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+    window.addEventListener("storage", (event) => { if (event.key === HISTORY_KEY) loadRecords(); });
+    loadRecords();
+  </script>
+</body>
+</html>

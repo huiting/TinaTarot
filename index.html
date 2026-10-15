@@ -15,7 +15,14 @@
     :root { color-scheme: dark; --bg:#17121f; --panel:#211a2a; --gold:#d8b878; --muted:#b8acbd; --line:#504357; }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; color:#f8f2e9; background:radial-gradient(ellipse at 50% -15%,#473452 0%,var(--bg) 58%); font-family:ui-serif,"Noto Serif TC","Songti TC",serif; }
-    main { width:min(1100px,calc(100% - 32px)); margin:0 auto; padding:48px 0 64px; }
+    .app-shell { display:flex; min-height:100vh; }
+    .sidebar { width:236px; flex:0 0 236px; padding:30px 18px; border-right:1px solid #3b3043; background:#17121fe8; }
+    .brand { margin:0 10px 28px; color:var(--gold); font:600 13px/1.5 system-ui,sans-serif; letter-spacing:.12em; }
+    .sidebar nav { display:grid; gap:8px; }
+    .sidebar a { display:block; padding:12px 14px; border:1px solid transparent; border-radius:10px; color:var(--muted); text-decoration:none; font:14px/1.5 system-ui,sans-serif; }
+    .sidebar a:hover { color:#fff; background:#302638; }
+    .sidebar a[aria-current="page"] { color:#f8f2e9; background:#302638; border-color:#594965; }
+    main { width:min(1100px,calc(100% - 48px)); margin:0 auto; padding:48px 0 64px; }
     header { text-align:center; margin-bottom:28px; }
     .eyebrow { color:var(--gold); font:12px/1.5 system-ui,sans-serif; letter-spacing:.28em; }
     h1 { margin:8px 0 6px; font-size:clamp(36px,7vw,58px); font-weight:500; letter-spacing:.16em; }
@@ -35,11 +42,21 @@
     .empty { grid-column:1/-1; padding:55px 18px; text-align:center; color:#a99caf; border:1px dashed var(--line); border-radius:16px; font:14px/1.8 system-ui,sans-serif; }
     footer { margin-top:34px; text-align:center; color:#81758a; font:12px/1.7 system-ui,sans-serif; }
     @keyframes appear { from { opacity:0; transform:translateY(10px) scale(.98); } to { opacity:1; transform:none; } }
-    @media (max-width:520px) { main { padding-top:34px; } .cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 12px; } .card { padding:7px 7px 11px; } button { min-width:108px; padding:11px 19px; } }
+    @media (max-width:700px) { .app-shell { display:block; } .sidebar { width:100%; padding:14px 16px; border-right:0; border-bottom:1px solid #3b3043; } .brand { margin:0 4px 10px; } .sidebar nav { display:flex; gap:8px; } .sidebar a { flex:1; text-align:center; padding:10px 8px; } main { width:calc(100% - 32px); padding:34px 0 52px; } }
+    @media (max-width:520px) { .cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 12px; } .card { padding:7px 7px 11px; } button { min-width:108px; padding:11px 19px; } }
   </style>
 </head>
 <body>
-  <main>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主選單">
+      <p class="brand">TINA · DIVINATION</p>
+      <nav>
+        <a href="./index.html" aria-current="page">塔羅抽卡</a>
+        <a href="./runes.html">盧恩符文抽卡</a>
+        <a href="./history.html">抽卡記錄</a>
+      </nav>
+    </aside>
+    <main>
     <header>
       <div class="eyebrow">A MOMENT WITH THE CARDS</div>
       <h1>塔羅抽卡</h1>
@@ -53,36 +70,53 @@
     <section id="cards" class="cards" aria-label="已抽出的塔羅牌">
       <div class="empty">點擊「抽卡」，揭開第一張牌。</div>
     </section>
-    <footer>共 78 張牌 · 每張牌只會抽出一次</footer>
-  </main>
+    <footer>共 78 張牌 · 每張牌只會抽出一次<br>本次抽牌結果保存在此裝置；按「洗牌」會清除本次結果。</footer>
+    </main>
+  </div>
   <script>
     "use strict";
     const cardFiles = ["世界The World.jpg","倒吊者The Hanged Man.jpg","力量Strength.jpg","命運之輪Wheel Of Fortune.jpg","太陽The Sun.jpg","女皇The Empress.jpg","女祭司The High Priestess.jpg","審判Judgement.jpg","寶劍AAce Of Swords.jpg","寶劍七Seven Of Swords.jpg","寶劍三Three Of Swords.jpg","寶劍九Nine Of Swords.jpg","寶劍二Two Of Swords.jpg","寶劍五Five Of Swords.jpg","寶劍侍從Page Of Swords.jpg","寶劍八Eight Of Swords.jpg","寶劍六Six Of Swords.jpg","寶劍十Ten Of Swords.jpg","寶劍四Four Of Swords.jpg","寶劍國王King Of Swords.jpg","寶劍王后Queen Of Swords.jpg","寶劍騎士Knight Of Swords.jpg","惡魔The Devil.jpg","愚人The Fool.jpg","戀人The Lovers.jpg","戰車The Chariot.jpg","星星The Stars.jpg","月亮The Moon.jpg","權杖AAce Of Wands.jpg","權杖七Seven Of Wands.jpg","權杖三Three Of Wands.jpg","權杖九Nine Of Wands.jpg","權杖二Two Of Wands.jpg","權杖五Five Of Wands.jpg","權杖侍從Page Of Wands.jpg","權杖八Eight Of Wands.jpg","權杖六Six Of Wands.jpg","權杖十Ten Of Wands.jpg","權杖四Four Of Wands.jpg","權杖國王King Of Wands.jpg","權杖王后Queen Of Wands.jpg","權杖騎士Knight Of Wands.jpg","正義Justice.jpg","死神Death.jpg","皇帝The Emperor.jpg","節制Temperance.jpg","聖盃AAce Of Cups.jpg","聖盃七Seven Of Cups.jpg","聖盃三Three Of Cups.jpg","聖盃九Nine Of Cups.jpg","聖盃二Two Of Cups.jpg","聖盃五Five Of Cups.jpg","聖盃侍從Page Of Cups.jpg","聖盃八Eight Of Cups.jpg","聖盃六Six Of Cups.jpg","聖盃十Ten Of Cups.jpg","聖盃四Four Of Cups.jpg","聖盃國王King Of Cups.jpg","聖盃王后Queen Of Cups.jpg","聖盃騎士Knight Of Cups.jpg","聖職者The Hierophant.jpg","錢幣AAce Of Pentacles.jpg","錢幣七Seven Of Pentacles.jpg","錢幣三Three Of Pentacles.jpg","錢幣九Nine Of Pentacles.jpg","錢幣二Two Of Pentacles.jpg","錢幣五Five Of Pentacles.jpg","錢幣侍從Page Of Pentacles.jpg","錢幣八Eight Of Pentacles.jpg","錢幣六Six Of Pentacles.jpg","錢幣十Ten Of Pentacles.jpg","錢幣四Four Of Pentacles.jpg","錢幣國王King Of Pentacles.jpg","錢幣王后Queen Of Pentacles.jpg","錢幣騎士Knight Of Pentacles.jpg","隱士The Hermit.jpg","高塔The Tower.jpg","魔術師The Magician.jpg"];
     const cardsEl = document.getElementById("cards");
     const statusEl = document.getElementById("status");
     const drawButton = document.getElementById("drawButton");
+    const STORAGE_KEY = "tina-tarot-current-reading-v1";
+    const HISTORY_KEY = "tina-tarot-reading-history-v1";
+    const DELETED_KEY = "tina-tarot-deleted-reading-ids-v1";
     let deck = [];
     let drawnCount = 0;
+    let drawnFiles = [];
+    let sessionId = null;
+    let sessionCreatedAt = null;
 
-    function imagePath(file) {
-      return "./Tarot78/" + encodeURIComponent(file).replaceAll("%2F", "/");
+    function readHistory() {
+      try {
+        const records = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+        return Array.isArray(records) ? records : [];
+      } catch { return []; }
     }
-    function resetDeck() {
-      deck = [...cardFiles];
-      drawnCount = 0;
-      cardsEl.replaceChildren();
-      const empty = document.createElement("div");
-      empty.className = "empty";
-      empty.textContent = "點擊「抽卡」，揭開第一張牌。";
-      cardsEl.append(empty);
-      drawButton.disabled = false;
-      statusEl.textContent = "牌已洗好，準備開始。";
+
+    function saveHistoryRecord() {
+      if (!sessionId || drawnFiles.length === 0) return;
+      try {
+        const deleted = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+        if (Array.isArray(deleted) && deleted.includes(sessionId)) return;
+        const records = readHistory();
+        const record = { id: sessionId, type: "tarot", createdAt: sessionCreatedAt, cards: [...drawnFiles] };
+        const index = records.findIndex((item) => item.id === sessionId);
+        if (index >= 0) records[index] = record;
+        else records.push(record);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(records));
+      } catch { statusEl.textContent = "無法保存抽卡記錄；目前牌面仍可使用。"; }
     }
-    function drawCard() {
-      if (deck.length === 0) return;
-      if (drawnCount === 0) cardsEl.replaceChildren();
-      const index = Math.floor(Math.random() * deck.length);
-      const [file] = deck.splice(index, 1);
+
+    function saveReading() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ drawn: drawnFiles, sessionId, createdAt: sessionCreatedAt }));
+        saveHistoryRecord();
+      } catch { statusEl.textContent = "瀏覽器無法儲存結果；目前牌面仍可使用。"; }
+    }
+
+    function showCard(file) {
       const name = file.replace(/\.jpg$/i, "");
       const figure = document.createElement("figure");
       figure.className = "card";
@@ -96,7 +130,60 @@
       caption.textContent = name;
       figure.append(img, caption);
       cardsEl.prepend(figure);
+    }
+
+    function restoreReading() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (!saved || !Array.isArray(saved.drawn)) return false;
+        drawnFiles = saved.drawn.filter((file, index, all) => cardFiles.includes(file) && all.indexOf(file) === index);
+        drawnCount = drawnFiles.length;
+        if (drawnCount === 0) return false;
+        sessionId = saved.sessionId || `tarot-${Date.now().toString(36)}`;
+        sessionCreatedAt = saved.createdAt || new Date().toISOString();
+        deck = cardFiles.filter((file) => !drawnFiles.includes(file));
+        cardsEl.replaceChildren();
+        drawnFiles.forEach(showCard);
+        saveReading();
+        drawButton.disabled = deck.length === 0;
+        statusEl.textContent = deck.length === 0
+          ? "78 張牌都已抽完；按「洗牌」重新開始。"
+          : `已恢復上次抽牌結果：${drawnCount} 張，牌堆還有 ${deck.length} 張。`;
+        return true;
+      } catch { return false; }
+    }
+
+    function imagePath(file) {
+      return "./Tarot78/" + encodeURIComponent(file).replaceAll("%2F", "/");
+    }
+    function resetDeck() {
+      deck = [...cardFiles];
+      drawnFiles = [];
+      drawnCount = 0;
+      sessionId = null;
+      sessionCreatedAt = null;
+      cardsEl.replaceChildren();
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "點擊「抽卡」，揭開第一張牌。";
+      cardsEl.append(empty);
+      drawButton.disabled = false;
+      statusEl.textContent = "牌已洗好，準備開始。";
+      saveReading();
+    }
+    function drawCard() {
+      if (deck.length === 0) return;
+      if (drawnCount === 0) cardsEl.replaceChildren();
+      const index = Math.floor(Math.random() * deck.length);
+      const [file] = deck.splice(index, 1);
+      if (!sessionId) {
+        sessionId = `tarot-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+        sessionCreatedAt = new Date().toISOString();
+      }
+      drawnFiles.push(file);
+      showCard(file);
       drawnCount += 1;
+      saveReading();
       statusEl.textContent = `已抽出 ${drawnCount} 張，牌堆還有 ${deck.length} 張。`;
       if (deck.length === 0) {
         drawButton.disabled = true;
@@ -105,10 +192,10 @@
     }
     drawButton.addEventListener("click", drawCard);
     document.getElementById("shuffleButton").addEventListener("click", resetDeck);
-    resetDeck();
+    if (!restoreReading()) resetDeck();
 
     if ("serviceWorker" in navigator) {
-      statusEl.textContent = navigator.onLine ? "正在準備離線牌圖…" : "正在載入已儲存的牌圖…";
+      if (drawnCount === 0) statusEl.textContent = navigator.onLine ? "正在準備離線牌圖…" : "正在載入已儲存的牌圖…";
       navigator.serviceWorker.register("./service-worker.js")
         .then(() => navigator.serviceWorker.ready)
         .then(() => {
@@ -118,7 +205,7 @@
           if (drawnCount === 0) statusEl.textContent = "離線準備失敗；請確認連線後重新載入。";
         });
       window.addEventListener("offline", () => {
-        statusEl.textContent = "目前離線，使用已儲存的牌圖。";
+        if (drawnCount === 0) statusEl.textContent = "目前離線，使用已儲存的牌圖。";
       });
       window.addEventListener("online", () => {
         if (drawnCount === 0) statusEl.textContent = "已連線，正在確認離線牌圖…";

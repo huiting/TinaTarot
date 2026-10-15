@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17121f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="東京自由行">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+  <title>盧恩符文抽卡</title>
+  <style>
+    :root { color-scheme: dark; --bg:#17121f; --panel:#211a2a; --gold:#d8b878; --muted:#b8acbd; --line:#504357; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:#f8f2e9; background:radial-gradient(ellipse at 50% -15%,#473452 0%,var(--bg) 58%); font-family:ui-serif,"Noto Serif TC","Songti TC",serif; }
+    .app-shell { display:flex; min-height:100vh; }
+    .sidebar { width:236px; flex:0 0 236px; padding:30px 18px; border-right:1px solid #3b3043; background:#17121fe8; }
+    .brand { margin:0 10px 28px; color:var(--gold); font:600 13px/1.5 system-ui,sans-serif; letter-spacing:.12em; }
+    .sidebar nav { display:grid; gap:8px; }
+    .sidebar a { display:block; padding:12px 14px; border:1px solid transparent; border-radius:10px; color:var(--muted); text-decoration:none; font:14px/1.5 system-ui,sans-serif; }
+    .sidebar a:hover { color:#fff; background:#302638; }
+    .sidebar a[aria-current="page"] { color:#f8f2e9; background:#302638; border-color:#594965; }
+    main { width:min(1100px,calc(100% - 48px)); margin:0 auto; padding:48px 0 64px; }
+    header { text-align:center; margin-bottom:28px; }
+    .eyebrow { color:var(--gold); font:12px/1.5 system-ui,sans-serif; letter-spacing:.28em; }
+    h1 { margin:8px 0 6px; font-size:clamp(36px,7vw,58px); font-weight:500; letter-spacing:.12em; }
+    .subtitle { margin:0; color:var(--muted); font:14px/1.7 system-ui,sans-serif; }
+    .controls { display:flex; justify-content:center; gap:12px; margin:22px 0 14px; }
+    button { min-width:120px; padding:12px 24px; border:1px solid var(--gold); border-radius:999px; color:#211a2a; background:var(--gold); font:600 15px system-ui,sans-serif; letter-spacing:.08em; cursor:pointer; transition:transform .18s,background .18s,opacity .18s; }
+    button:hover:not(:disabled) { transform:translateY(-2px); background:#ecd39e; }
+    button:active:not(:disabled) { transform:translateY(0); }
+    button.secondary { color:#f8f2e9; background:transparent; border-color:var(--line); }
+    button.secondary:hover { background:#302638; }
+    button:disabled { opacity:.48; cursor:not-allowed; }
+    .toggle-row { display:flex; align-items:center; justify-content:center; gap:10px; margin:4px 0 14px; color:#e8dfeb; font:14px/1.5 system-ui,sans-serif; }
+    .toggle-row input { width:18px; height:18px; accent-color:var(--gold); }
+    .toggle-row:has(input:disabled) { opacity:.58; }
+    .status { min-height:24px; margin:0 0 28px; text-align:center; color:var(--muted); font:13px/1.6 system-ui,sans-serif; }
+    .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:22px 18px; align-items:start; }
+    .card { margin:0; min-height:220px; padding:18px 12px 16px; display:flex; flex-direction:column; justify-content:center; align-items:center; overflow:hidden; text-align:center; border:1px solid #594965; border-radius:14px; background:linear-gradient(155deg,#2b2233,#1e1825); box-shadow:0 12px 32px #09070d66; animation:appear .35s ease both; }
+    .rune-glyph { min-height:125px; display:grid; place-items:center; color:#f2d99f; font-family:"Noto Sans Runic","Segoe UI Historic","Noto Sans",serif; font-size:clamp(80px,12vw,112px); line-height:1; }
+    .rune-glyph.blank { width:82px; height:112px; min-height:0; border:1px solid #75617e; border-radius:42% 42% 38% 38%; background:radial-gradient(ellipse at 45% 35%,#473a50,#17121f 75%); }
+    .card figcaption { padding:15px 2px 0; color:#f8f2e9; font-size:16px; line-height:1.5; }
+    .card figcaption small { display:block; margin-top:3px; color:var(--muted); font:12px/1.5 system-ui,sans-serif; }
+    .empty { grid-column:1/-1; padding:55px 18px; text-align:center; color:#a99caf; border:1px dashed var(--line); border-radius:16px; font:14px/1.8 system-ui,sans-serif; }
+    footer { margin-top:34px; text-align:center; color:#81758a; font:12px/1.7 system-ui,sans-serif; }
+    @keyframes appear { from { opacity:0; transform:translateY(10px) scale(.98); } to { opacity:1; transform:none; } }
+    @media (max-width:700px) { .app-shell { display:block; } .sidebar { width:100%; padding:14px 16px; border-right:0; border-bottom:1px solid #3b3043; } .brand { margin:0 4px 10px; } .sidebar nav { display:flex; gap:8px; } .sidebar a { flex:1; text-align:center; padding:10px 8px; } main { width:calc(100% - 32px); padding:34px 0 52px; } }
+    @media (max-width:520px) { .cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 12px; } .card { min-height:190px; padding:12px 7px; } .rune-glyph { min-height:105px; font-size:86px; } .rune-glyph.blank { width:68px; height:96px; min-height:0; } button { min-width:108px; padding:11px 19px; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主選單">
+      <p class="brand">TINA · DIVINATION</p>
+      <nav>
+        <a href="./index.html">塔羅抽卡</a>
+        <a href="./runes.html" aria-current="page">盧恩符文抽卡</a>
+        <a href="./history.html">抽卡記錄</a>
+      </nav>
+    </aside>
+    <main>
+      <header>
+        <div class="eyebrow">A MOMENT WITH THE RUNES</div>
+        <h1>盧恩符文抽卡</h1>
+        <p class="subtitle">靜下心來，抽取一枚老弗薩克符文。</p>
+        <div class="controls">
+          <button id="drawButton" type="button">抽卡</button>
+          <button id="shuffleButton" class="secondary" type="button">洗牌</button>
+        </div>
+        <label class="toggle-row"><input id="blankToggle" type="checkbox">含空白符文</label>
+        <p id="status" class="status" aria-live="polite"></p>
+      </header>
+      <section id="cards" class="cards" aria-label="已抽出的盧恩符文">
+        <div class="empty">點擊「抽卡」，揭開第一枚符文。</div>
+      </section>
+      <footer>老弗薩克 · 24 枚基本符文 · 每枚只會抽出一次<br>本次抽取結果保存在此裝置；按「洗牌」會清除本次結果。</footer>
+    </main>
+  </div>
+  <script>
+    "use strict";
+    const runes = [
+      { name:"Fehu", glyph:"ᚠ" }, { name:"Uruz", glyph:"ᚢ" }, { name:"Thurisaz", glyph:"ᚦ" }, { name:"Ansuz", glyph:"ᚨ" },
+      { name:"Raidho", glyph:"ᚱ" }, { name:"Kenaz", glyph:"ᚲ" }, { name:"Gebo", glyph:"ᚷ" }, { name:"Wunjo", glyph:"ᚹ" },
+      { name:"Hagalaz", glyph:"ᚺ" }, { name:"Nauthiz", glyph:"ᚾ" }, { name:"Isa", glyph:"ᛁ" }, { name:"Jera", glyph:"ᛃ" },
+      { name:"Eihwaz", glyph:"ᛇ" }, { name:"Perthro", glyph:"ᛈ" }, { name:"Algiz", glyph:"ᛉ" }, { name:"Sowilo", glyph:"ᛊ" },
+      { name:"Tiwaz", glyph:"ᛏ" }, { name:"Berkano", glyph:"ᛒ" }, { name:"Ehwaz", glyph:"ᛖ" }, { name:"Mannaz", glyph:"ᛗ" },
+      { name:"Laguz", glyph:"ᛚ" }, { name:"Ingwaz", glyph:"ᛜ" }, { name:"Dagaz", glyph:"ᛞ" }, { name:"Othala", glyph:"ᛟ" }
+    ];
+    const blankRune = { name:"空白符文", glyph:"", blank:true };
+    const cardsEl = document.getElementById("cards");
+    const statusEl = document.getElementById("status");
+    const drawButton = document.getElementById("drawButton");
+    const blankToggle = document.getElementById("blankToggle");
+    const STORAGE_KEY = "tina-tarot-current-rune-reading-v1";
+    const HISTORY_KEY = "tina-tarot-reading-history-v1";
+    const DELETED_KEY = "tina-tarot-deleted-reading-ids-v1";
+    let deck = [];
+    let drawnCount = 0;
+    let drawnRunes = [];
+    let sessionId = null;
+    let sessionCreatedAt = null;
+
+    function readHistory() {
+      try {
+        const records = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+        return Array.isArray(records) ? records : [];
+      } catch { return []; }
+    }
+
+    function saveHistoryRecord() {
+      if (!sessionId || drawnRunes.length === 0) return;
+      try {
+        const deleted = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+        if (Array.isArray(deleted) && deleted.includes(sessionId)) return;
+        const records = readHistory();
+        const record = {
+          id: sessionId, type: "runes", createdAt: sessionCreatedAt,
+          includeBlank: blankToggle.checked, cards: drawnRunes.map((rune) => rune.name)
+        };
+        const index = records.findIndex((item) => item.id === sessionId);
+        if (index >= 0) records[index] = record;
+        else records.push(record);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(records));
+      } catch { statusEl.textContent = "無法保存抽卡記錄；目前符文仍可使用。"; }
+    }
+
+    function saveReading() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          includeBlank: blankToggle.checked, drawn: drawnRunes.map((rune) => rune.name), sessionId, createdAt: sessionCreatedAt
+        }));
+        saveHistoryRecord();
+      } catch { statusEl.textContent = "瀏覽器無法儲存結果；目前符文仍可使用。"; }
+    }
+
+    function showRune(rune) {
+      const figure = document.createElement("figure");
+      figure.className = "card";
+      const glyph = document.createElement("div");
+      glyph.className = "rune-glyph" + (rune.blank ? " blank" : "");
+      glyph.setAttribute("aria-hidden", "true");
+      glyph.textContent = rune.glyph;
+      const caption = document.createElement("figcaption");
+      caption.textContent = rune.name;
+      if (!rune.blank) {
+        const alphabet = document.createElement("small");
+        alphabet.textContent = rune.glyph;
+        caption.append(alphabet);
+      }
+      figure.append(glyph, caption);
+      cardsEl.prepend(figure);
+    }
+
+    function restoreReading() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (!saved || !Array.isArray(saved.drawn)) return false;
+        blankToggle.checked = Boolean(saved.includeBlank);
+        const completeDeck = [...runes, ...(blankToggle.checked ? [blankRune] : [])];
+        const validNames = new Set(completeDeck.map((rune) => rune.name));
+        const names = saved.drawn.filter((name, index, all) => validNames.has(name) && all.indexOf(name) === index);
+        drawnRunes = names.map((name) => completeDeck.find((rune) => rune.name === name));
+        drawnCount = drawnRunes.length;
+        if (drawnCount === 0) return false;
+        sessionId = saved.sessionId || `runes-${Date.now().toString(36)}`;
+        sessionCreatedAt = saved.createdAt || new Date().toISOString();
+        deck = completeDeck.filter((rune) => !names.includes(rune.name));
+        cardsEl.replaceChildren();
+        drawnRunes.forEach(showRune);
+        saveReading();
+        blankToggle.disabled = true;
+        drawButton.disabled = deck.length === 0;
+        statusEl.textContent = deck.length === 0
+          ? `${drawnCount} 枚符文都已抽完；按「洗牌」重新開始。`
+          : `已恢復上次抽取結果：${drawnCount} 枚，符文袋還有 ${deck.length} 枚。`;
+        return true;
+      } catch { return false; }
+    }
+
+    function resetDeck() {
+      deck = [...runes, ...(blankToggle.checked ? [blankRune] : [])];
+      drawnRunes = [];
+      drawnCount = 0;
+      sessionId = null;
+      sessionCreatedAt = null;
+      cardsEl.replaceChildren();
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "點擊「抽卡」，揭開第一枚符文。";
+      cardsEl.append(empty);
+      drawButton.disabled = false;
+      blankToggle.disabled = false;
+      statusEl.textContent = `符文已洗好，準備開始（${deck.length} 枚）。`;
+      saveReading();
+    }
+    function drawRune() {
+      if (deck.length === 0) return;
+      if (drawnCount === 0) {
+        cardsEl.replaceChildren();
+        blankToggle.disabled = true;
+      }
+      const index = Math.floor(Math.random() * deck.length);
+      const [rune] = deck.splice(index, 1);
+      if (!sessionId) {
+        sessionId = `runes-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+        sessionCreatedAt = new Date().toISOString();
+      }
+      drawnRunes.push(rune);
+      showRune(rune);
+      drawnCount += 1;
+      saveReading();
+      statusEl.textContent = `已抽出 ${drawnCount} 枚，符文袋還有 ${deck.length} 枚。`;
+      if (deck.length === 0) {
+        drawButton.disabled = true;
+        statusEl.textContent = `${drawnCount} 枚符文都已抽完；按「洗牌」重新開始。`;
+      }
+    }
+    drawButton.addEventListener("click", drawRune);
+    document.getElementById("shuffleButton").addEventListener("click", resetDeck);
+    blankToggle.addEventListener("change", resetDeck);
+    if (!restoreReading()) resetDeck();
+
+    if ("serviceWorker" in navigator) {
+      if (drawnCount === 0) statusEl.textContent = navigator.onLine ? "正在準備離線符文與牌圖…" : "正在載入已儲存的符文與牌圖…";
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => navigator.serviceWorker.ready)
+        .then(() => { if (drawnCount === 0) statusEl.textContent = "離線符文與牌圖已備妥，可以離線抽卡。"; })
+        .catch(() => { if (drawnCount === 0) statusEl.textContent = "離線準備失敗；請確認連線後重新載入。"; });
+      window.addEventListener("offline", () => { if (drawnCount === 0) statusEl.textContent = "目前離線，使用已儲存的符文與牌圖。"; });
+      window.addEventListener("online", () => { if (drawnCount === 0) statusEl.textContent = "已連線，正在確認離線素材…"; });
+    }
+  </script>
+</body>
+</html>
